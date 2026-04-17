@@ -53,6 +53,7 @@ import { ScopedServicesProvider } from '../components/scoped_services_provider';
 import { isFieldStatsMode } from './utils/is_field_stats_mode';
 import { isTabDeleted } from './utils/is_tab_deleted';
 import { addControlsFromSavedSession } from './utils/add_controls_from_saved_session';
+import { serializeRelatedDashboardEsqlControlsForDiscover } from './utils/serialize_related_dashboard_esql_controls_for_discover';
 
 export const getSearchEmbeddableFactory = ({
   startServices,
@@ -234,7 +235,12 @@ export const getSearchEmbeddableFactory = ({
         discoverServices,
         isEditable: startServices.isEditable,
         getTitle: () => titleManager.api.title$.getValue(),
-        getControls: () => runtimeState.controlGroupJson,
+        getControls: () =>
+          serializeRelatedDashboardEsqlControlsForDiscover(
+            parentApi,
+            uuid,
+            searchEmbeddable.api.savedSearch$.getValue()
+          ),
       });
 
       const api: SearchEmbeddableApi = finalizeApi({

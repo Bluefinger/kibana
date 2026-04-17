@@ -250,10 +250,8 @@ export const fromSavedSearchToSavedObjectTab = ({
     chartInterval: savedSearch.chartInterval,
     density: savedSearch.density,
     visContext: tab.attributes ? tab.attributes?.visContext : savedSearch.visContext,
-    controlGroupJson: tab.attributes
-      ? tab.attributes?.controlGroupState
-        ? JSON.stringify(tab.attributes.controlGroupState)
-        : undefined
+    controlGroupJson: tab.attributes?.controlGroupState
+      ? JSON.stringify(tab.attributes.controlGroupState)
       : savedSearch.controlGroupJson,
   };
 };

@@ -157,4 +157,25 @@ describe('extractEsqlVariables', () => {
       },
     ]);
   });
+
+  it('should extract variables from dashboard-serialized ES|QL controls that omit `type`', () => {
+    const panels: ControlPanelsState<OptionsListESQLControlState> = {
+      dashboardControlPanelId: {
+        variable_name: 'region',
+        variable_type: ESQLVariableType.VALUES,
+        selected_options: ['us-east'],
+        single_select: true,
+        control_type: EsqlControlType.STATIC_VALUES,
+        available_options: ['us-east', 'eu-west'],
+      } as ControlPanelState<OptionsListESQLControlState>,
+    };
+
+    expect(extractEsqlVariables(panels)).toEqual([
+      {
+        key: 'region',
+        type: ESQLVariableType.VALUES,
+        value: 'us-east',
+      },
+    ]);
+  });
 });

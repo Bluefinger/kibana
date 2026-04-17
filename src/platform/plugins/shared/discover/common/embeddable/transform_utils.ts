@@ -150,13 +150,7 @@ export function fromStoredSearchEmbeddableByValue(
     description: description || attributes.description,
     ...(hide_title && { hide_title }),
     ...(hide_border && { hide_border }),
-    tabs: [
-      {
-        ...apiTab,
-        ...panelOverrides,
-        ...('controlGroupJson' in attributes && { controlGroupJson: attributes.controlGroupJson }),
-      },
-    ],
+    tabs: [{ ...apiTab, ...panelOverrides }],
   };
 }
 
@@ -204,7 +198,6 @@ export function fromStoredTab(
     density,
     viewMode,
     kibanaSavedObjectMeta: { searchSourceJSON },
-    controlGroupJson,
   } = tab;
   const apiTab = {
     ...toDiscoverSessionPanelOverrides(tab),
@@ -221,7 +214,6 @@ export function fromStoredTab(
           type: AS_CODE_ESQL_DATA_SOURCE_TYPE,
           query: query.esql,
         },
-        controlGroupJson,
       }
     : {
         ...apiTab,
@@ -257,7 +249,6 @@ export function toStoredTab(apiTab: DiscoverSessionTab): {
     hideTable: false,
     isTextBasedQuery: isDiscoverSessionEsqlTab(apiTab),
     kibanaSavedObjectMeta: { searchSourceJSON: JSON.stringify(searchSourceFields) },
-    ...('controlGroupJson' in apiTab && { controlGroupJson: apiTab.controlGroupJson }),
     ...('view_mode' in apiTab && { viewMode: apiTab.view_mode }),
   };
   return { state, references };

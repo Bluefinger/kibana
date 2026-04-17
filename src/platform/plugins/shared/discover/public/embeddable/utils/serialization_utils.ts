@@ -94,7 +94,8 @@ export const deserializeState = async ({
       ...panelState,
       ...savedObjectOverride,
       nonPersistedDisplayOptions: serializedState.nonPersistedDisplayOptions,
-      controlGroupJson: storedState.attributes.controlGroupJson,
+      controlGroupJson:
+        'attributes' in serializedState ? serializedState.attributes.controlGroupJson : undefined,
     };
   }
 };
