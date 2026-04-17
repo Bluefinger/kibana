@@ -236,6 +236,7 @@ export const getSearchEmbeddableFactory = ({
         isEditable: startServices.isEditable,
         getTitle: () => titleManager.api.title$.getValue(),
         getControls: () =>
+          runtimeState.controlGroupJson ??
           serializeRelatedDashboardEsqlControlsForDiscover(
             parentApi,
             uuid,

@@ -48,6 +48,7 @@ export type { SearchEmbeddablePanelApiState };
  */
 export type SearchEmbeddableInputState = SearchEmbeddablePanelApiState & {
   nonPersistedDisplayOptions?: NonPersistedDisplayOptions;
+  controlGroupJson?: string;
 };
 
 export type SearchEmbeddablePublicState = Pick<
