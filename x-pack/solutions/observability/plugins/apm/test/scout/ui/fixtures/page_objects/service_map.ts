@@ -22,10 +22,6 @@ export class ServiceMapPage {
   public zoomOutBtnControl: Locator;
   public fitViewBtn: Locator;
   public noServicesPlaceholder: Locator;
-  public serviceMapFlyout: Locator;
-  public serviceMapFlyoutContent: Locator;
-  public serviceMapFlyoutTitle: Locator;
-  public serviceMapFlyoutActions: Locator;
   public serviceMapPopover: Locator;
   public serviceMapPopoverContent: Locator;
   public serviceMapPopoverTitle: Locator;
@@ -68,10 +64,6 @@ export class ServiceMapPage {
     this.serviceMapPopover = page.testSubj.locator('serviceMapPopover');
     this.serviceMapPopoverContent = page.testSubj.locator('serviceMapPopoverContent');
     this.serviceMapPopoverTitle = page.testSubj.locator('serviceMapPopoverTitle');
-    this.serviceMapFlyout = page.testSubj.locator('serviceFlyout');
-    this.serviceMapFlyoutContent = page.testSubj.locator('serviceFlyoutOverview');
-    this.serviceMapFlyoutTitle = page.testSubj.locator('serviceFlyoutTitleLink');
-    this.serviceMapFlyoutActions = page.testSubj.locator('serviceFlyoutActionsButton');
     this.serviceMapDependencyDetailsButton = page.testSubj.locator(
       'apmDependencyContentsDependencyDetailsButton'
     );
@@ -245,7 +237,9 @@ export class ServiceMapPage {
   async openServiceNodeFlyout(serviceName: string) {
     await this.settleServiceMapLayout();
     await this.clickServiceNode(serviceName);
-    await this.serviceMapFlyoutContent.waitFor({ state: 'visible', timeout: EXTENDED_TIMEOUT });
+    await this.page.testSubj
+      .locator('serviceFlyoutOverview')
+      .waitFor({ state: 'visible', timeout: EXTENDED_TIMEOUT });
   }
 
   async openNodePopover(nodeId: string) {
@@ -397,18 +391,6 @@ export class ServiceMapPage {
     });
   }
 
-  async waitForFlyoutToBeHidden(options?: { timeout?: number }) {
-    await this.serviceMapFlyout.waitFor({
-      state: 'hidden',
-      timeout: options?.timeout ?? EXTENDED_TIMEOUT,
-    });
-  }
-
-  async closeFlyout() {
-    await this.page.testSubj.click('euiFlyoutCloseButton');
-    await this.waitForFlyoutToBeHidden();
-  }
-
   /** Dismiss any open popover (e.g. so a node is not covered). No-op if popover already hidden. */
   async dismissPopoverIfOpen() {
     await this.page.keyboard.press('Escape');
@@ -441,15 +423,6 @@ export class ServiceMapPage {
 
   async getPopoverTitle() {
     return this.serviceMapPopoverTitle.textContent();
-  }
-
-  async getFlyoutTitle() {
-    return this.serviceMapFlyoutTitle.textContent();
-  }
-
-  async clickServiceMapFlyoutAction(action: string) {
-    await this.serviceMapFlyoutActions.click();
-    await this.page.testSubj.click(`serviceFlyoutActionsMenuItem-${action}`);
   }
 
   async focusNodeAndWaitForFocus(nodeId: string) {

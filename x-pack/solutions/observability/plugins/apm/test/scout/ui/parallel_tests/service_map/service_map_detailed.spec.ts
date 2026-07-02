@@ -67,36 +67,34 @@ test.describe(
     });
 
     test('shows flyout when clicking on a service node', async ({
-      page,
-      pageObjects: { serviceMapPage },
+      pageObjects: { serviceMapPage, serviceFlyoutPage },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      const flyoutTitle = await serviceMapPage.getFlyoutTitle();
+      const flyoutTitle = await serviceFlyoutPage.getTitle();
       expect(flyoutTitle).toContain(SERVICE_OPBEANS_JAVA);
-      await expect(serviceMapPage.serviceMapFlyoutContent).toBeVisible();
+      await expect(serviceFlyoutPage.content).toBeVisible();
 
-      for (const id of ['latency', 'throughput', 'failedTransactionRate']) {
-        const chart = page.getByTestId(`serviceFlyoutLensChart-${id}`);
-        await expect(chart).toBeVisible();
-        await expect(chart.locator('[data-render-complete="true"]')).toBeVisible();
-        await expect(chart.locator('[data-test-subj="embeddable-lens-failure"]')).toBeHidden();
-      }
+      await serviceFlyoutPage.expectChartsRendered([
+        'latency',
+        'throughput',
+        'failedTransactionRate',
+      ]);
     });
 
     test('dismisses service flyout when clicking the close button', async ({
-      pageObjects: { serviceMapPage },
+      pageObjects: { serviceMapPage, serviceFlyoutPage },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      await serviceMapPage.closeFlyout();
-      await expect(serviceMapPage.serviceMapFlyout).toBeHidden();
+      await serviceFlyoutPage.close();
+      await expect(serviceFlyoutPage.flyout).toBeHidden();
     });
 
     test('shows popover when clicking on an edge', async ({ pageObjects: { serviceMapPage } }) => {
@@ -127,15 +125,15 @@ test.describe(
 
     test('navigates to Discover (traces)', async ({
       page,
-      pageObjects: { serviceMapPage, discover, dataGrid },
+      pageObjects: { serviceMapPage, serviceFlyoutPage, discover, dataGrid },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
 
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      await serviceMapPage.clickServiceMapFlyoutAction('openTracesInDiscover');
+      await serviceFlyoutPage.clickAction('openTracesInDiscover');
 
       await expect(page).toHaveURL(new RegExp(`/app/discover`));
       await dataGrid.waitForDocTableRendered();
@@ -144,15 +142,15 @@ test.describe(
 
     test('navigates to Discover (logs)', async ({
       page,
-      pageObjects: { serviceMapPage, discover, dataGrid },
+      pageObjects: { serviceMapPage, serviceFlyoutPage, discover, dataGrid },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
 
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      await serviceMapPage.clickServiceMapFlyoutAction('openLogsInDiscover');
+      await serviceFlyoutPage.clickAction('openLogsInDiscover');
 
       await expect(page).toHaveURL(new RegExp(`/app/discover`));
       await dataGrid.waitForDocTableRendered();
@@ -161,26 +159,29 @@ test.describe(
 
     test('navigates to Service Details (alerts) and page loads', async ({
       page,
-      pageObjects: { serviceMapPage },
+      pageObjects: { serviceMapPage, serviceFlyoutPage },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      await serviceMapPage.clickServiceMapFlyoutAction('openAlerts');
+      await serviceFlyoutPage.clickAction('openAlerts');
 
       await expect(page).toHaveURL(new RegExp(`/app/apm/services/${SERVICE_OPBEANS_JAVA}/alerts`));
       await expect(page.getByTestId('apmMainTemplateHeaderServiceName')).toBeVisible();
     });
 
-    test('navigates to SLOs and page loads', async ({ page, pageObjects: { serviceMapPage } }) => {
+    test('navigates to SLOs and page loads', async ({
+      page,
+      pageObjects: { serviceMapPage, serviceFlyoutPage },
+    }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
-      await expect(serviceMapPage.serviceMapFlyout).toBeVisible();
+      await expect(serviceFlyoutPage.flyout).toBeVisible();
 
-      await serviceMapPage.clickServiceMapFlyoutAction('openSlos');
+      await serviceFlyoutPage.clickAction('openSlos');
 
       await expect(page).toHaveURL(new RegExp(`/app/slos`));
       await expect(
@@ -190,13 +191,13 @@ test.describe(
 
     test('navigates to Service Details from flyout title and page loads', async ({
       page,
-      pageObjects: { serviceMapPage },
+      pageObjects: { serviceMapPage, serviceFlyoutPage },
     }) => {
       await serviceMapPage.clickFitView();
       await serviceMapPage.waitForServiceNodeToLoad(SERVICE_OPBEANS_JAVA);
       await serviceMapPage.openServiceNodeFlyout(SERVICE_OPBEANS_JAVA);
 
-      await serviceMapPage.serviceMapFlyoutTitle.click();
+      await serviceFlyoutPage.title.click();
 
       await expect(page).toHaveURL(
         new RegExp(`/app/apm/services/${SERVICE_OPBEANS_JAVA}/overview`)
