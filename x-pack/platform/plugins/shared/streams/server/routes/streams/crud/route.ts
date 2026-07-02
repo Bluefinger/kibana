@@ -22,6 +22,7 @@ import {
   createQueryStreamRequest,
   getWiredStreamResponse,
   listStreamsResponse,
+  listClassicStreamsResponse,
 } from '../../../oas_examples';
 
 export const readStreamRoute = createServerRoute({
@@ -160,7 +161,7 @@ export const listClassicStreamsRoute = createServerRoute({
           content: {
             'application/json': {
               examples: {
-                listStreams: { value: listStreamsResponse },
+                listClassicStreams: { value: listClassicStreamsResponse },
               },
             },
           },
