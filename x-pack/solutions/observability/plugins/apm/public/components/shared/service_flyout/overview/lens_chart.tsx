@@ -78,7 +78,7 @@ function ServiceFlyoutLensChartComponent({
       >
         <EuiFlexItem>
           <EuiTitle size="xxs">
-            <h4>{title}</h4>
+            <h4 css={{ whiteSpace: 'nowrap' }}>{title}</h4>
           </EuiTitle>
         </EuiFlexItem>
         {titleAction ? <EuiFlexItem grow={false}>{titleAction}</EuiFlexItem> : null}
