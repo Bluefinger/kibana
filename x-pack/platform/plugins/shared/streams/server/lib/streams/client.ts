@@ -907,8 +907,15 @@ export class StreamsClient {
   /**
    * Lists both managed and unmanaged classic streams
    */
-  listClassicStreams(): Promise<Streams.ClassicStream.Definition[]> {
-    return this.getUnmanagedDataStreams();
+  async listClassicStreams(): Promise<Streams.ClassicStream.Definition[]> {
+    const streams = await this.listStreamsWithDataStreamExistence();
+
+    return streams
+      .filter(
+        (data): data is { stream: Streams.ClassicStream.Definition; exists: boolean } =>
+          data.stream.type === 'classic'
+      )
+      .map(({ stream }) => stream);
   }
 
   async listStreamsWithDataStreamExistence(): Promise<
@@ -924,11 +931,13 @@ export class StreamsClient {
     );
 
     unmanagedStreams.forEach((stream) => {
-      if (!allDefinitionsById.get(stream.name)) {
+      const definition = allDefinitionsById.get(stream.name);
+
+      if (!definition) {
         allDefinitionsById.set(stream.name, { stream, exists: true });
       } else {
         allDefinitionsById.set(stream.name, {
-          ...allDefinitionsById.get(stream.name)!,
+          ...definition,
           exists: true,
         });
       }
