@@ -136,6 +136,55 @@ export const listStreamsRoute = createServerRoute({
   },
 });
 
+export const listClassicStreamsRoute = createServerRoute({
+  endpoint: 'GET /api/streams/classic 2023-10-31',
+  options: {
+    access: 'public',
+    description: 'Fetches list of all classic streams',
+    summary: 'Get classic stream list',
+    availability: {
+      since: '9.5.0',
+      stability: 'experimental',
+    },
+    oasOperationObject: () => ({
+      requestBody: {
+        content: {
+          'application/json': {
+            examples: {},
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: 'A list of all classic streams.',
+          content: {
+            'application/json': {
+              examples: {
+                listStreams: { value: listStreamsResponse },
+              },
+            },
+          },
+        },
+      },
+    }),
+  },
+  security: {
+    authz: {
+      requiredPrivileges: [STREAMS_API_PRIVILEGES.read],
+    },
+  },
+  params: z.object({}),
+  handler: async ({
+    request,
+    getScopedClients,
+  }): Promise<{ streams: Streams.ClassicStream.Definition[] }> => {
+    const { streamsClient } = await getScopedClients({ request });
+    return {
+      streams: await streamsClient.listClassicStreams(),
+    };
+  },
+});
+
 export const editStreamRoute = createServerRoute({
   endpoint: 'PUT /api/streams/{name} 2023-10-31',
   options: {
@@ -274,6 +323,7 @@ export const deleteStreamRoute = createServerRoute({
 export const crudRoutes = {
   ...readStreamRoute,
   ...listStreamsRoute,
+  ...listClassicStreamsRoute,
   ...editStreamRoute,
   ...deleteStreamRoute,
   ...createClassicStreamRoute,

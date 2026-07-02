@@ -42,7 +42,7 @@ import { State } from './state_management/state';
 import type { StreamsStorageClient } from './storage/streams_storage_client';
 import { checkAccess, checkAccessBulk } from './stream_crud';
 import { upsertDataStream } from './data_streams/manage_data_streams';
-import { shouldExcludeFromStreamsList } from './data_streams/should_exclude_from_streams_list';
+import { shouldIncludeFromStreamsList } from './data_streams/should_include_from_streams_list';
 import type { KnowledgeIndicatorClient } from './ki';
 
 interface AcknowledgeResponse<TResult extends Result> {
@@ -902,6 +902,13 @@ export class StreamsClient {
     });
   }
 
+  /**
+   * Lists both managed and unmanaged classic streams
+   */
+  listClassicStreams(): Promise<Streams.ClassicStream.Definition[]> {
+    return this.getUnmanagedDataStreams();
+  }
+
   async listStreamsWithDataStreamExistence(): Promise<
     Array<{ stream: Streams.all.Definition; exists: boolean }>
   > {
@@ -946,21 +953,19 @@ export class StreamsClient {
 
     const now = new Date().toISOString();
 
-    return response.data_streams
-      .filter((dataStream) => !shouldExcludeFromStreamsList(dataStream))
-      .map((dataStream) => ({
-        type: 'classic' as const,
-        name: dataStream.name,
-        description: '',
-        updated_at: now,
-        ingest: {
-          lifecycle: { inherit: {} },
-          processing: { steps: [], updated_at: now },
-          settings: {},
-          classic: {},
-          failure_store: { inherit: {} },
-        },
-      }));
+    return response.data_streams.filter(shouldIncludeFromStreamsList).map((dataStream) => ({
+      type: 'classic' as const,
+      name: dataStream.name,
+      description: '',
+      updated_at: now,
+      ingest: {
+        lifecycle: { inherit: {} },
+        processing: { steps: [], updated_at: now },
+        settings: {},
+        classic: {},
+        failure_store: { inherit: {} },
+      },
+    }));
   }
 
   /**
