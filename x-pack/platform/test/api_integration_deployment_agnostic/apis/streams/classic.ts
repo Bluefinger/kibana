@@ -80,7 +80,7 @@ export default function ({ getService }: DeploymentAgnosticFtrProviderContext) {
         } satisfies Streams.ClassicStream.Definition);
       });
 
-      it('allows listing only classic streams', async () => {
+      it('allows listing only classic streams on internal api', async () => {
         const doc = {
           message: '2023-01-01T00:00:10.000Z error test',
         };
@@ -90,7 +90,7 @@ export default function ({ getService }: DeploymentAgnosticFtrProviderContext) {
         const {
           body: { streams },
           status,
-        } = await apiClient.fetch('GET /api/streams/classic 2023-10-31');
+        } = await apiClient.fetch('GET /internal/streams/classic');
 
         expect(status).to.eql(200);
         expect(streams.length).to.eql(1);

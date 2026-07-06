@@ -234,6 +234,7 @@ export const bulkGetStreamSummariesRoute = createServerRoute({
 
 export const internalCrudRoutes = {
   ...listStreamsRoute,
+  ...listClassicStreamsRoute,
   ...streamDetailRoute,
   ...resolveIndexRoute,
   ...bulkGetStreamSummariesRoute,
