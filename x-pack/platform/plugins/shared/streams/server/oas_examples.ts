@@ -495,37 +495,3 @@ export const listStreamsResponse: { streams: Streams.all.Definition[] } = {
     },
   ],
 };
-
-// ---------------------------------------------------------------------------
-// GET /api/streams/classic  –  classic stream list response
-// ---------------------------------------------------------------------------
-
-export const listClassicStreamsResponse: { streams: Streams.ClassicStream.Definition[] } = {
-  streams: [
-    {
-      name: 'logs-myapp-default',
-      description: 'Legacy application logs',
-      type: 'classic',
-      updated_at: '2024-12-01T09:00:00.000Z',
-      ingest: {
-        lifecycle: { dsl: { data_retention: '30d' } },
-        processing: {
-          steps: [
-            {
-              action: 'grok',
-              from: 'message',
-              patterns: [
-                '%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log.level} %{GREEDYDATA:message}',
-              ],
-              ignore_missing: true,
-            },
-          ],
-          updated_at: '2024-12-01T09:00:00.000Z',
-        },
-        settings: {},
-        failure_store: { disabled: {} },
-        classic: {},
-      },
-    },
-  ],
-};
