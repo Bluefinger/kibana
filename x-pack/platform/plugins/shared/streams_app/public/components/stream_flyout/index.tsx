@@ -6,27 +6,61 @@
  */
 
 import React, { useMemo, useState } from 'react';
+import { css } from '@emotion/react';
 import { i18n } from '@kbn/i18n';
 import { Streams } from '@kbn/streams-schema';
 import {
   EuiFlyout,
+  EuiFlyoutHeader,
   EuiFlyoutBody,
   EuiFlexGroup,
   EuiFlexItem,
   EuiLoadingSpinner,
-  EuiEmptyPrompt,
-  EuiPageTemplate,
+  EuiTitle,
+  EuiTabs,
+  EuiTab,
+  EuiSpacer,
+  useGeneratedHtmlId,
 } from '@elastic/eui';
+import { DatasetQualityIndicator } from '@kbn/dataset-quality-plugin/public';
 import {
   StreamFlyoutDetailContextProvider,
   useStreamDetail,
 } from '../../hooks/use_stream_flyout_detail';
 import { useKibana } from '../../hooks/use_kibana';
 import { StreamOverview } from '../stream_detail_overview';
-import { StreamDetailDataQuality } from '../stream_data_quality';
-import { StreamDetailAttachments } from '../stream_detail_attachments';
-import { StreamDetailLifecycle } from '../stream_management/data_management/stream_detail_lifecycle';
-import { WiredStreamBadge } from '../stream_badges';
+import { ClassicStreamBadge, LifecycleBadge, WiredStreamBadge } from '../stream_badges';
+import { useDataSetQuality } from '../../hooks/use_data_set_quality';
+import { StreamAttachments } from './stream_attachments';
+import { StreamQuality } from './stream_quality';
+import { StreamRetention } from './stream_retention';
+
+const TABS = [
+  {
+    id: 'overview',
+    label: i18n.translate('xpack.streams.flyout.tab.overview', {
+      defaultMessage: 'Overview',
+    }),
+  },
+  {
+    id: 'quality',
+    label: i18n.translate('xpack.streams.flyout.tab.quality', {
+      defaultMessage: 'Quality',
+    }),
+  },
+  {
+    id: 'retention',
+    label: i18n.translate('xpack.streams.flyout.tab.retention', {
+      defaultMessage: 'Retention',
+    }),
+  },
+  {
+    id: 'attachments',
+    label: i18n.translate('xpack.streams.flyout.tab.attachments', {
+      defaultMessage: 'Attachments',
+    }),
+  },
+];
 
 const TAB_PAGES: Record<string, () => React.JSX.Element> = {
   overview: () => <StreamOverview />,
@@ -35,151 +69,91 @@ const TAB_PAGES: Record<string, () => React.JSX.Element> = {
   retention: () => <StreamRetention />,
 };
 
-const ERROR_PROMPT = (
-  <EuiEmptyPrompt
-    iconType="error"
-    color="danger"
-    title={
-      <h2>
-        {i18n.translate('xpack.streams.flyout.error.title', {
-          defaultMessage: 'Unable to load the tab',
-        })}
-      </h2>
-    }
-    body={
-      <p>
-        {i18n.translate('xpack.streams.flyout.error.description', {
-          defaultMessage: 'A problem was encountered with the stream, and is unable to be shown.',
-        })}
-      </p>
-    }
-  />
-);
-
-function StreamRetention() {
-  const { loading, definition, refresh } = useStreamDetail();
-
-  if (loading) {
-    return (
-      <EuiFlexGroup justifyContent="center" alignItems="center">
-        <EuiLoadingSpinner size="xxl" />
-      </EuiFlexGroup>
-    );
-  }
-
-  return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    ERROR_PROMPT
-  ) : (
-    <EuiFlexGroup>
-      <EuiFlexItem>
-        <StreamDetailLifecycle definition={definition} refreshDefinition={refresh} />
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  );
-}
-
-function StreamAttachments() {
+function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
   const { loading, definition } = useStreamDetail();
-
-  if (loading) {
-    return (
-      <EuiFlexGroup justifyContent="center" alignItems="center">
-        <EuiLoadingSpinner size="xxl" />
-      </EuiFlexGroup>
-    );
-  }
-
-  return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    ERROR_PROMPT
-  ) : (
-    <EuiFlexGroup>
-      <EuiFlexItem>
-        <StreamDetailAttachments definition={definition} />
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  );
-}
-
-function StreamQuality() {
-  const { loading, definition, refresh } = useStreamDetail();
-
-  if (loading) {
-    return (
-      <EuiFlexGroup justifyContent="center" alignItems="center">
-        <EuiLoadingSpinner size="xxl" />
-      </EuiFlexGroup>
-    );
-  }
-
-  return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    ERROR_PROMPT
-  ) : (
-    <EuiFlexGroup>
-      <EuiFlexItem>
-        <StreamDetailDataQuality definition={definition} refreshDefinition={refresh} />
-      </EuiFlexItem>
-    </EuiFlexGroup>
-  );
-}
-
-function StreamInnerBody({ name, onClose }: StreamFlyoutProps) {
-  const { loading, definition } = useStreamDetail();
+  const { quality, isQualityLoading } = useDataSetQuality(name, definition);
   const [selectedTab, selectTab] = useState('overview');
+  const headerId = useGeneratedHtmlId();
 
-  const tabs = [
-    {
-      id: 'overview',
-      label: 'Overview',
-      isSelected: selectedTab === 'overview',
-      onClick: () => selectTab('overview'),
-    },
-    {
-      id: 'quality',
-      label: 'Quality',
-      isSelected: selectedTab === 'quality',
-      onClick: () => selectTab('quality'),
-    },
-    {
-      id: 'retention',
-      label: 'Retention',
-      isSelected: selectedTab === 'retention',
-      onClick: () => selectTab('retention'),
-    },
-    {
-      id: 'attachments',
-      label: 'Attachments',
-      isSelected: selectedTab === 'attachments',
-      onClick: () => selectTab('attachments'),
-    },
-  ];
+  const renderTabs = useMemo(
+    () =>
+      TABS.map(({ id, label }) => (
+        <EuiTab isSelected={id === selectedTab} onClick={() => selectTab(id)} key={id}>
+          {label}
+        </EuiTab>
+      )),
+    [selectedTab]
+  );
 
   const page = useMemo(() => TAB_PAGES[selectedTab](), [selectedTab]);
   const badges = [];
 
+  if (loading) {
+    badges.push(
+      <EuiFlexItem grow={false}>
+        <EuiLoadingSpinner size="s" />
+      </EuiFlexItem>
+    );
+  }
+
+  if (definition) {
+    badges.push(
+      <DatasetQualityIndicator
+        quality={quality}
+        isLoading={isQualityLoading}
+        verbose={true}
+        showTooltip={true}
+      />
+    );
+  }
+
   if (definition && Streams.WiredStream.GetResponse.is(definition)) {
-    badges.push(<WiredStreamBadge />);
+    badges.push(
+      <EuiFlexItem grow={false}>
+        <WiredStreamBadge />
+      </EuiFlexItem>
+    );
+  }
+
+  if (definition && Streams.ClassicStream.GetResponse.is(definition)) {
+    badges.push(
+      <EuiFlexItem grow={false}>
+        <LifecycleBadge lifecycle={definition.effective_lifecycle} />
+      </EuiFlexItem>,
+      <EuiFlexItem grow={false}>
+        <ClassicStreamBadge />
+      </EuiFlexItem>
+    );
   }
 
   return (
-    <EuiFlyout aria-label={name} onClose={onClose}>
-      <EuiPageTemplate.Header
-        pageTitle={
-          <>
-            {name} {badges}
-          </>
-        }
-        tabs={tabs}
-      />
+    <EuiFlyout aria-labelledby={headerId} onClose={onClose}>
+      <EuiFlyoutHeader hasBorder>
+        <EuiFlexGroup alignItems="center">
+          <EuiFlexItem grow={false}>
+            <EuiTitle size="s">
+              <h1 id={headerId}>{name}</h1>
+            </EuiTitle>
+          </EuiFlexItem>
+          {badges}
+        </EuiFlexGroup>
+        <EuiSpacer size="s" />
+        <EuiTabs
+          css={css`
+            margin-bottom: -25px;
+          `}
+        >
+          {renderTabs}
+        </EuiTabs>
+      </EuiFlyoutHeader>
       <EuiFlyoutBody>
-        <EuiPageTemplate.Section paddingSize="none">
-          {loading ? (
-            <EuiFlexGroup justifyContent="center" alignItems="center">
-              <EuiLoadingSpinner size="xxl" />
-            </EuiFlexGroup>
-          ) : (
-            page
-          )}
-        </EuiPageTemplate.Section>
+        {loading ? (
+          <EuiFlexGroup justifyContent="center" alignItems="center">
+            <EuiLoadingSpinner size="xxl" />
+          </EuiFlexGroup>
+        ) : (
+          page
+        )}
       </EuiFlyoutBody>
     </EuiFlyout>
   );
@@ -198,7 +172,7 @@ export function StreamFlyout({ name, onClose }: StreamFlyoutProps) {
       name={name}
       streamsRepositoryClient={streamsRepositoryClient}
     >
-      <StreamInnerBody name={name} onClose={onClose} />
+      <StreamFlyoutContent name={name} onClose={onClose} />
     </StreamFlyoutDetailContextProvider>
   );
 }

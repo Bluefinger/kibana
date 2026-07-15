@@ -44,6 +44,7 @@ import { buildClassicStreamsGraph } from './build_graph';
 import { CanvasContextMenu, type ContextMenuPosition } from './canvas_context_menu';
 import { canvasEdgeTypes, canvasNodeTypes } from './registry';
 import type { ClassicCanvasNode } from './types';
+import { StreamFlyout } from '../../../stream_flyout';
 
 interface StreamDetailCanvasProps {
   definition: Streams.ingest.all.GetResponse;
@@ -79,6 +80,7 @@ function ClassicStreamsCanvas() {
       },
     },
   } = useKibana();
+  const [flyout, setFlyout] = useState<string | null>(null);
 
   const { value, loading } = useStreamsAppFetch(
     ({ signal }) => streamsRepositoryClient.fetch('GET /internal/streams/classic', { signal }),
@@ -101,7 +103,7 @@ function ClassicStreamsCanvas() {
 
   const closeContextMenu = useCallback(() => setContextMenuPosition(null), []);
 
-  const onNodeContextMenu = useCallback<NodeMouseHandler<ClassicCanvasNode>>((event) => {
+  const onNodeContextMenu = useCallback<NodeMouseHandler<ClassicCanvasNode>>((event, node) => {
     event.preventDefault();
     setContextMenuPosition({ x: event.clientX, y: event.clientY });
   }, []);
@@ -113,6 +115,13 @@ function ClassicStreamsCanvas() {
     },
     [closeContextMenu]
   );
+
+  const onNodeClick = useCallback<NodeMouseHandler<ClassicCanvasNode>>((event, node) => {
+    event.preventDefault();
+    if (node.type === 'destination') {
+      setFlyout(node.data.title);
+    }
+  }, []);
 
   if (loading && !value) {
     return (
@@ -165,6 +174,7 @@ function ClassicStreamsCanvas() {
           onEdgesChange={onEdgesChange}
           onNodeContextMenu={onNodeContextMenu}
           onPaneContextMenu={onPaneContextMenu}
+          onNodeClick={onNodeClick}
           nodeTypes={canvasNodeTypes}
           edgeTypes={canvasEdgeTypes}
           fitView
@@ -174,6 +184,7 @@ function ClassicStreamsCanvas() {
           <Background />
           <Controls showInteractive={false} />
         </ReactFlow>
+        {flyout && <StreamFlyout name={flyout} onClose={() => setFlyout(null)} />}
         <CanvasContextMenu position={contextMenuPosition} onClose={closeContextMenu} />
       </EuiPanel>
     </ReactFlowProvider>
