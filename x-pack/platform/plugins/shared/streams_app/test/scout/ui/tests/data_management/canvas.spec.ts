@@ -107,5 +107,26 @@ test.describe(
         plainDestination.locator('[data-test-subj="streamsCanvasProcessingGlyph"]')
       ).toHaveCount(0);
     });
+
+    test('shows a flyout for classic streams when a destination node is clicked', async ({
+      page,
+    }) => {
+      await page.testSubj.click('streamsCanvasDestinationNode');
+
+      const loadingEffect = page.testSubj.locator('streamsCanvasFlyout-loading');
+      const flyout = page.testSubj.locator('streamsCanvasFlyout');
+
+      await expect(flyout).toBeVisible();
+      await expect(page.testSubj.locator('streamsCanvasFlyoutTitle')).toBeVisible();
+
+      await loadingEffect.waitFor();
+      await loadingEffect.waitFor({ state: 'hidden' });
+
+      await expect(flyout.getByTestId('classicStreamBadge')).toBeVisible();
+      await expect(flyout.getByTestId('streamsCanvasFlyoutTab-overview')).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+    });
   }
 );

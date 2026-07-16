@@ -78,7 +78,12 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
   const renderTabs = useMemo(
     () =>
       TABS.map(({ id, label }) => (
-        <EuiTab isSelected={id === selectedTab} onClick={() => selectTab(id)} key={id}>
+        <EuiTab
+          isSelected={id === selectedTab}
+          onClick={() => selectTab(id)}
+          key={id}
+          data-test-subj={`streamsCanvasFlyoutTab-${id}`}
+        >
           {label}
         </EuiTab>
       )),
@@ -127,11 +132,16 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
   }
 
   return (
-    <EuiFlyout aria-labelledby={headerId} onClose={onClose}>
+    <EuiFlyout
+      size="l"
+      aria-labelledby={headerId}
+      onClose={onClose}
+      data-test-subj="streamsCanvasFlyout"
+    >
       <EuiFlyoutHeader hasBorder>
         <EuiFlexGroup alignItems="center">
           <EuiFlexItem grow={false}>
-            <EuiTitle size="s">
+            <EuiTitle size="s" data-test-subj="streamsCanvasFlyoutTitle">
               <h1 id={headerId}>{name}</h1>
             </EuiTitle>
           </EuiFlexItem>
@@ -139,6 +149,7 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
         </EuiFlexGroup>
         <EuiSpacer size="s" />
         <EuiTabs
+          data-test-subj="streamsCanvasFlyoutTabs"
           css={css`
             margin-bottom: -25px;
           `}
@@ -146,10 +157,10 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
           {renderTabs}
         </EuiTabs>
       </EuiFlyoutHeader>
-      <EuiFlyoutBody>
+      <EuiFlyoutBody data-test-subj="streamsCanvasFlyoutBody">
         {loading ? (
           <EuiFlexGroup justifyContent="center" alignItems="center">
-            <EuiLoadingSpinner size="xxl" />
+            <EuiLoadingSpinner data-test-subj="streamsCanvasFlyout-loading" size="xxl" />
           </EuiFlexGroup>
         ) : (
           page
