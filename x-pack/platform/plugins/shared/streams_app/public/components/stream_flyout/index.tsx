@@ -28,7 +28,6 @@ import {
   useStreamDetail,
 } from '../../hooks/use_stream_flyout_detail';
 import { useKibana } from '../../hooks/use_kibana';
-import { StreamOverview } from '../stream_detail_overview';
 import { ClassicStreamBadge, LifecycleBadge, WiredStreamBadge } from '../stream_badges';
 import { useDataSetQuality } from '../../hooks/use_data_set_quality';
 import { useStreamsAppRouter } from '../../hooks/use_streams_app_router';
@@ -37,6 +36,7 @@ import { StreamQuality } from './stream_quality';
 import { StreamRetention } from './stream_retention';
 import { ViewInDiscoverButton } from './discover_button';
 import { useTimeRange } from '../../hooks/use_time_range';
+import { StreamFlyoutOverview } from './stream_flyout_overview';
 
 const TABS = [
   {
@@ -66,7 +66,7 @@ const TABS = [
 ];
 
 const TAB_PAGES: Record<string, () => React.JSX.Element> = {
-  overview: () => <StreamOverview />,
+  overview: () => <StreamFlyoutOverview />,
   quality: () => <StreamQuality />,
   attachments: () => <StreamAttachments />,
   retention: () => <StreamRetention />,
@@ -185,13 +185,16 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
               css={css`
                 min-height: 32px;
               `}
+              gutterSize="s"
             >
               <EuiFlexItem grow={false}>
                 <EuiTitle size="s" data-test-subj="streamsCanvasFlyoutTitle">
                   <h1 id={headerId}>{name}</h1>
                 </EuiTitle>
               </EuiFlexItem>
-              {badges}
+              <EuiFlexItem>
+                <EuiFlexGroup gutterSize="xs">{badges}</EuiFlexGroup>
+              </EuiFlexItem>
             </EuiFlexGroup>
           </EuiFlexItem>
           {discoverButton}

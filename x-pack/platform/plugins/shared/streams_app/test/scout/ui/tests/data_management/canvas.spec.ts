@@ -119,7 +119,6 @@ test.describe(
       await expect(flyout).toBeVisible();
       await expect(page.testSubj.locator('streamsCanvasFlyoutTitle')).toBeVisible();
 
-      await loadingEffect.waitFor();
       await loadingEffect.waitFor({ state: 'hidden' });
 
       await expect(flyout.getByTestId('classicStreamBadge')).toBeVisible();
