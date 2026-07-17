@@ -31,9 +31,12 @@ import { useKibana } from '../../hooks/use_kibana';
 import { StreamOverview } from '../stream_detail_overview';
 import { ClassicStreamBadge, LifecycleBadge, WiredStreamBadge } from '../stream_badges';
 import { useDataSetQuality } from '../../hooks/use_data_set_quality';
+import { useStreamsAppRouter } from '../../hooks/use_streams_app_router';
 import { StreamAttachments } from './stream_attachments';
 import { StreamQuality } from './stream_quality';
 import { StreamRetention } from './stream_retention';
+import { ViewInDiscoverButton } from './discover_button';
+import { useTimeRange } from '../../hooks/use_time_range';
 
 const TABS = [
   {
@@ -71,6 +74,8 @@ const TAB_PAGES: Record<string, () => React.JSX.Element> = {
 
 function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
   const { loading, definition } = useStreamDetail();
+  const { push } = useStreamsAppRouter();
+  const { rangeFrom, rangeTo } = useTimeRange();
   const { quality, isQualityLoading } = useDataSetQuality(name, definition);
   const [selectedTab, selectTab] = useState('overview');
   const headerId = useGeneratedHtmlId();
@@ -112,6 +117,8 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
     );
   }
 
+  let discoverButton = null;
+
   if (definition && Streams.WiredStream.GetResponse.is(definition)) {
     badges.push(
       <EuiFlexItem grow={false}>
@@ -129,6 +136,16 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
         <ClassicStreamBadge />
       </EuiFlexItem>
     );
+
+    discoverButton = (
+      <EuiFlexItem grow={false}>
+        <ViewInDiscoverButton
+          stream={definition.stream}
+          indexMode={definition.index_mode ?? 'standard'}
+          hasDataStream={definition.data_stream_exists}
+        />
+      </EuiFlexItem>
+    );
   }
 
   return (
@@ -137,34 +154,73 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
       aria-labelledby={headerId}
       onClose={onClose}
       data-test-subj="streamsCanvasFlyout"
+      paddingSize="none"
+      flyoutMenuProps={{
+        customActions: [
+          {
+            iconType: 'share',
+            'aria-label': i18n.translate('xpack.streams.flyout.tab.goToLink', {
+              defaultMessage: 'Go to Stream Details',
+            }),
+            onClick: () => {
+              push('/{key}', {
+                path: { key: name },
+                query: { rangeFrom, rangeTo },
+              });
+            },
+          },
+        ],
+      }}
     >
       <EuiFlyoutHeader hasBorder>
-        <EuiFlexGroup alignItems="center">
-          <EuiFlexItem grow={false}>
-            <EuiTitle size="s" data-test-subj="streamsCanvasFlyoutTitle">
-              <h1 id={headerId}>{name}</h1>
-            </EuiTitle>
+        <EuiFlexGroup
+          justifyContent="spaceBetween"
+          css={css`
+            padding: 12px 25px 0;
+          `}
+        >
+          <EuiFlexItem>
+            <EuiFlexGroup
+              alignItems="center"
+              css={css`
+                min-height: 32px;
+              `}
+            >
+              <EuiFlexItem grow={false}>
+                <EuiTitle size="s" data-test-subj="streamsCanvasFlyoutTitle">
+                  <h1 id={headerId}>{name}</h1>
+                </EuiTitle>
+              </EuiFlexItem>
+              {badges}
+            </EuiFlexGroup>
           </EuiFlexItem>
-          {badges}
+          {discoverButton}
         </EuiFlexGroup>
         <EuiSpacer size="s" />
         <EuiTabs
-          data-test-subj="streamsCanvasFlyoutTabs"
           css={css`
-            margin-bottom: -25px;
+            padding: 0 25px;
+            margin-bottom: -1px;
           `}
+          data-test-subj="streamsCanvasFlyoutTabs"
         >
           {renderTabs}
         </EuiTabs>
       </EuiFlyoutHeader>
       <EuiFlyoutBody data-test-subj="streamsCanvasFlyoutBody">
-        {loading ? (
-          <EuiFlexGroup justifyContent="center" alignItems="center">
-            <EuiLoadingSpinner data-test-subj="streamsCanvasFlyout-loading" size="xxl" />
-          </EuiFlexGroup>
-        ) : (
-          page
-        )}
+        <div
+          css={css`
+            padding: 25px;
+          `}
+        >
+          {loading ? (
+            <EuiFlexGroup justifyContent="center" alignItems="center">
+              <EuiLoadingSpinner data-test-subj="streamsCanvasFlyout-loading" size="xxl" />
+            </EuiFlexGroup>
+          ) : (
+            page
+          )}
+        </div>
       </EuiFlyoutBody>
     </EuiFlyout>
   );
