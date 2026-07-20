@@ -25,7 +25,7 @@ import {
 import { DatasetQualityIndicator } from '@kbn/dataset-quality-plugin/public';
 import {
   StreamFlyoutDetailContextProvider,
-  useStreamDetail,
+  useStreamFlyoutDetail,
 } from '../../hooks/use_stream_flyout_detail';
 import { useKibana } from '../../hooks/use_kibana';
 import { ClassicStreamBadge, LifecycleBadge, WiredStreamBadge } from '../stream_badges';
@@ -73,7 +73,7 @@ const TAB_PAGES: Record<string, () => React.JSX.Element> = {
 };
 
 function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
-  const { loading, definition } = useStreamDetail();
+  const { loading, definition } = useStreamFlyoutDetail();
   const { push } = useStreamsAppRouter();
   const { rangeFrom, rangeTo } = useTimeRange();
   const { quality, isQualityLoading } = useDataSetQuality(name, definition);
@@ -100,7 +100,7 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
 
   if (loading) {
     badges.push(
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem grow={false} key="loading-indicator">
         <EuiLoadingSpinner size="s" />
       </EuiFlexItem>
     );
@@ -108,12 +108,14 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
 
   if (definition) {
     badges.push(
-      <DatasetQualityIndicator
-        quality={quality}
-        isLoading={isQualityLoading}
-        verbose={true}
-        showTooltip={true}
-      />
+      <EuiFlexItem grow={false} key="dataset-indicator">
+        <DatasetQualityIndicator
+          quality={quality}
+          isLoading={isQualityLoading}
+          verbose={true}
+          showTooltip={true}
+        />
+      </EuiFlexItem>
     );
   }
 
@@ -121,7 +123,7 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
 
   if (definition && Streams.WiredStream.GetResponse.is(definition)) {
     badges.push(
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem grow={false} key="wired-badge">
         <WiredStreamBadge />
       </EuiFlexItem>
     );
@@ -129,10 +131,10 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
 
   if (definition && Streams.ClassicStream.GetResponse.is(definition)) {
     badges.push(
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem grow={false} key="lifecycle-badge">
         <LifecycleBadge lifecycle={definition.effective_lifecycle} />
       </EuiFlexItem>,
-      <EuiFlexItem grow={false}>
+      <EuiFlexItem grow={false} key="classic-badge">
         <ClassicStreamBadge />
       </EuiFlexItem>
     );

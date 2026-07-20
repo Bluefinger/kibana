@@ -124,7 +124,7 @@ export function StreamFlyoutDetailContextProvider({
   return <StreamDetailContext.Provider value={context}>{children}</StreamDetailContext.Provider>;
 }
 
-export function useStreamDetail() {
+export function useStreamFlyoutDetail() {
   const ctx = React.useContext(StreamDetailContext);
   if (!ctx) {
     throw new Error('useStreamDetail must be used within a StreamDetailContextProvider');
@@ -132,8 +132,8 @@ export function useStreamDetail() {
   return ctx;
 }
 
-export function useStreamDetailAsIngestStream() {
-  const ctx = useStreamDetail();
+export function useStreamFlyoutDetailAsIngestStream() {
+  const ctx = useStreamFlyoutDetail();
   if (
     !Streams.WiredStream.GetResponse.is(ctx.definition) &&
     !Streams.ClassicStream.GetResponse.is(ctx.definition)

@@ -9,10 +9,10 @@ import { Streams } from '@kbn/streams-schema';
 import { EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner } from '@elastic/eui';
 import { ErrorPrompt } from './error_prompt';
 import { StreamOverview } from '../stream_detail_overview';
-import { useStreamDetail } from '../../hooks/use_stream_flyout_detail';
+import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
 
 export function StreamFlyoutOverview() {
-  const { loading, definition } = useStreamDetail();
+  const { loading, definition } = useStreamFlyoutDetail();
 
   if (loading) {
     return (

@@ -8,11 +8,11 @@ import React from 'react';
 import { Streams } from '@kbn/streams-schema';
 import { EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner } from '@elastic/eui';
 import { ErrorPrompt } from './error_prompt';
-import { useStreamDetail } from '../../hooks/use_stream_flyout_detail';
+import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
 import { StreamDetailLifecycle } from '../stream_management/data_management/stream_detail_lifecycle';
 
 export function StreamRetention() {
-  const { loading, definition, refresh } = useStreamDetail();
+  const { loading, definition, refresh } = useStreamFlyoutDetail();
 
   if (loading) {
     return (
