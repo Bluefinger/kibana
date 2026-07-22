@@ -37,7 +37,6 @@ import { MockStreamCanvas } from './placeholder_stream_canvas';
 import { useCanvasKeyboardShortcuts } from './use_canvas_a11y';
 import { useCanvasHistory } from './use_canvas_history';
 import type { ClassicCanvasNode } from './types';
-import { StreamFlyout } from '../../../stream_flyout';
 
 const KEYBOARD_INSTRUCTIONS_ID = 'streamsCanvasKbdInstructions';
 
