@@ -11,7 +11,7 @@ import { ErrorPrompt } from './error_prompt';
 import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
 import { StreamDetailLifecycle } from '../stream_management/data_management/stream_detail_lifecycle';
 
-export function StreamRetention() {
+export function StreamRetention({ onClose }: { onClose: () => void }) {
   const { loading, definition, refresh } = useStreamFlyoutDetail();
 
   if (loading) {
@@ -23,7 +23,7 @@ export function StreamRetention() {
   }
 
   return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    <ErrorPrompt />
+    <ErrorPrompt onClose={onClose} />
   ) : (
     <EuiFlexGroup>
       <EuiFlexItem>

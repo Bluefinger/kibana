@@ -229,7 +229,18 @@ function ClassicStreamsCanvas() {
     );
   }, [closeContextMenu, setNodes]);
 
-  useCanvasKeyboardShortcuts({ onUndo: handleUndo, onRedo: handleRedo, onEscape });
+  const onEnter = useCallback(() => {
+    const selected = nodes.filter((node) => node.selected);
+    // Disregard if more than one node is selected for whatever reason.
+    if (selected.length === 1) {
+      const selectedNode = selected[0];
+      if (selectedNode.type === 'destination') {
+        setFlyout(selectedNode.data.title);
+      }
+    }
+  }, [nodes]);
+
+  useCanvasKeyboardShortcuts({ onUndo: handleUndo, onRedo: handleRedo, onEscape, onEnter });
 
   if (loading && !value) {
     return (
@@ -292,7 +303,7 @@ function ClassicStreamsCanvas() {
           })}
         />
       )}
-      {flyout && <StreamFlyout name={flyout} onClose={onCloseFlyout} />}
+      {flyout && <StreamFlyout name={flyout + 'guh'} onClose={onCloseFlyout} />}
       <EuiScreenReaderOnly>
         <p id={KEYBOARD_INSTRUCTIONS_ID}>
           {i18n.translate('xpack.streams.canvas.keyboardInstructions', {

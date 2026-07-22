@@ -6,17 +6,16 @@
  */
 import React from 'react';
 import { i18n } from '@kbn/i18n';
-import { EuiEmptyPrompt } from '@elastic/eui';
+import { EuiButton, EuiEmptyPrompt } from '@elastic/eui';
 
-export function ErrorPrompt() {
+export function ErrorPrompt({ onClose }: { onClose: () => void }) {
   return (
     <EuiEmptyPrompt
-      iconType="error"
-      color="danger"
+      iconType="search"
       title={
         <h2>
           {i18n.translate('xpack.streams.flyout.error.title', {
-            defaultMessage: 'Unable to load the tab',
+            defaultMessage: 'Stream not found',
           })}
         </h2>
       }
@@ -26,6 +25,13 @@ export function ErrorPrompt() {
             defaultMessage: 'A problem was encountered with the stream, and is unable to be shown.',
           })}
         </p>
+      }
+      actions={
+        <EuiButton data-test-subj="streamNotFoundCloseButton" fill onClick={onClose}>
+          {i18n.translate('xpack.streams.flyout.error.closeButton', {
+            defaultMessage: 'Go back to stream canvas',
+          })}
+        </EuiButton>
       }
     />
   );

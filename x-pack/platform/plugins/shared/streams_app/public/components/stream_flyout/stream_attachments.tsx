@@ -11,7 +11,7 @@ import { ErrorPrompt } from './error_prompt';
 import { StreamDetailAttachments } from '../stream_detail_attachments';
 import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
 
-export function StreamAttachments() {
+export function StreamAttachments({ onClose }: { onClose: () => void }) {
   const { loading, definition } = useStreamFlyoutDetail();
 
   if (loading) {
@@ -23,7 +23,7 @@ export function StreamAttachments() {
   }
 
   return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    <ErrorPrompt />
+    <ErrorPrompt onClose={onClose} />
   ) : (
     <EuiFlexGroup>
       <EuiFlexItem>

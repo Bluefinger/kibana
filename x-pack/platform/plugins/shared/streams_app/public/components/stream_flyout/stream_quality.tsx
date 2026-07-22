@@ -11,7 +11,7 @@ import { ErrorPrompt } from './error_prompt';
 import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
 import { StreamDetailDataQuality } from '../stream_data_quality';
 
-export function StreamQuality() {
+export function StreamQuality({ onClose }: { onClose: () => void }) {
   const { loading, definition, refresh } = useStreamFlyoutDetail();
 
   if (loading) {
@@ -23,7 +23,7 @@ export function StreamQuality() {
   }
 
   return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    <ErrorPrompt />
+    <ErrorPrompt onClose={onClose} />
   ) : (
     <EuiFlexGroup>
       <EuiFlexItem>

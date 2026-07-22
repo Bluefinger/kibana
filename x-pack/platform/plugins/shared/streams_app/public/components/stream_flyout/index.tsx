@@ -65,11 +65,11 @@ const TABS = [
   },
 ];
 
-const TAB_PAGES: Record<string, () => React.JSX.Element> = {
-  overview: () => <StreamFlyoutOverview />,
-  quality: () => <StreamQuality />,
-  attachments: () => <StreamAttachments />,
-  retention: () => <StreamRetention />,
+const TAB_PAGES: Record<string, (onClose: () => void) => React.JSX.Element> = {
+  overview: (onClose: () => void) => <StreamFlyoutOverview onClose={onClose} />,
+  quality: (onClose: () => void) => <StreamQuality onClose={onClose} />,
+  attachments: (onClose: () => void) => <StreamAttachments onClose={onClose} />,
+  retention: (onClose: () => void) => <StreamRetention onClose={onClose} />,
 };
 
 function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
@@ -95,7 +95,7 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
     [selectedTab]
   );
 
-  const page = useMemo(() => TAB_PAGES[selectedTab](), [selectedTab]);
+  const page = useMemo(() => TAB_PAGES[selectedTab](onClose), [selectedTab, onClose]);
   const badges = [];
 
   if (loading) {

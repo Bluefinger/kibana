@@ -8,6 +8,7 @@
 import React from 'react';
 import { Streams } from '@kbn/streams-schema';
 import { STREAMS_UI_PRIVILEGES } from '@kbn/streams-plugin/public';
+import { isHttpFetchError } from '@kbn/server-route-repository-client';
 import { useStreamsAppFetch } from './use_streams_app_fetch';
 import { useKibana } from './use_kibana';
 import {
@@ -112,7 +113,11 @@ export function StreamFlyoutDetailContextProvider({
           return response as Streams.all.GetResponse;
         });
     },
-    [streamsRepositoryClient, name, canManageInUi]
+    [streamsRepositoryClient, name, canManageInUi],
+    {
+      shouldSuppressFetchErrorToast: (err: Error) =>
+        isHttpFetchError(err) && err.body?.statusCode === 404,
+    }
   );
 
   const context = React.useMemo(
