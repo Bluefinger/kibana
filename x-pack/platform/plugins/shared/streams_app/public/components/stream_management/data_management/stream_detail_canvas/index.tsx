@@ -37,6 +37,7 @@ import { MockStreamCanvas } from './placeholder_stream_canvas';
 import { useCanvasKeyboardShortcuts } from './use_canvas_a11y';
 import { useCanvasHistory } from './use_canvas_history';
 import type { ClassicCanvasNode } from './types';
+import { StreamFlyout } from '../../../stream_flyout';
 
 const KEYBOARD_INSTRUCTIONS_ID = 'streamsCanvasKbdInstructions';
 
@@ -172,11 +173,14 @@ function ClassicStreamsCanvas() {
   );
 
   const onNodeClick = useCallback<NodeMouseHandler<ClassicCanvasNode>>((event, node) => {
-    event.preventDefault();
-    if (node.type === 'destination') {
+    if (node.type === 'destination' && !event.shiftKey) {
+      event.preventDefault();
       setFlyout(node.data.title);
     }
   }, []);
+
+  const onCloseFlyout = useCallback(() => setFlyout(null), []);
+
   const reopenContextMenu = useCallback(
     (position: ContextMenuPosition) => setContextMenu({ position, target: 'pane' }),
     []
@@ -269,6 +273,7 @@ function ClassicStreamsCanvas() {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeContextMenu={onNodeContextMenu}
+      onNodeClick={onNodeClick}
       onPaneContextMenu={onPaneContextMenu}
       onSelectionContextMenu={onSelectionContextMenu}
       ariaLabel={i18n.translate('xpack.streams.canvas.regionAriaLabel', {
@@ -287,6 +292,7 @@ function ClassicStreamsCanvas() {
           })}
         />
       )}
+      {flyout && <StreamFlyout name={flyout} onClose={onCloseFlyout} />}
       <EuiScreenReaderOnly>
         <p id={KEYBOARD_INSTRUCTIONS_ID}>
           {i18n.translate('xpack.streams.canvas.keyboardInstructions', {
