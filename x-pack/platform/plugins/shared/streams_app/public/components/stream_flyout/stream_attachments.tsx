@@ -10,8 +10,9 @@ import { EuiFlexGroup, EuiFlexItem, EuiLoadingSpinner } from '@elastic/eui';
 import { ErrorPrompt } from './error_prompt';
 import { StreamDetailAttachments } from '../stream_detail_attachments';
 import { useStreamFlyoutDetail } from '../../hooks/use_stream_flyout_detail';
+import type { StreamFlyoutProps } from '.';
 
-export function StreamAttachments({ onClose }: { onClose: () => void }) {
+export function StreamAttachments({ name, onClose }: StreamFlyoutProps) {
   const { loading, definition } = useStreamFlyoutDetail();
 
   if (loading) {
@@ -23,7 +24,7 @@ export function StreamAttachments({ onClose }: { onClose: () => void }) {
   }
 
   return !definition || Streams.QueryStream.GetResponse.is(definition) ? (
-    <ErrorPrompt onClose={onClose} />
+    <ErrorPrompt name={name} onClose={onClose} />
   ) : (
     <EuiFlexGroup>
       <EuiFlexItem>

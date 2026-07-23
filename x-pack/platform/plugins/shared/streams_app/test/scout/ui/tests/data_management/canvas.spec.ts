@@ -144,14 +144,14 @@ test.describe(
       await streams.tidyUpCanvasFromPane();
       await expect(streams.canvasUndo).toBeEnabled();
 
-      await streams.getCanvasDestinationNode(PLAIN_STREAM).click();
+      await streams.getCanvasDestinationNode(PLAIN_STREAM).click({ modifiers: ['Shift'] });
       await page.keyboard.press('Control+z');
       await expect(streams.canvasUndo).toBeDisabled();
     });
 
     test('undoes a keyboard-driven node reposition', async ({ page, pageObjects: { streams } }) => {
       // Selecting + focusing a node lets the arrow keys reposition it.
-      await streams.getCanvasDestinationNode(PLAIN_STREAM).click();
+      await streams.getCanvasDestinationNode(PLAIN_STREAM).click({ modifiers: ['Shift'] });
       await page.keyboard.press('ArrowRight');
 
       // The keyboard move records a history step even though no pointer drag ran,

@@ -6,9 +6,11 @@
  */
 import React from 'react';
 import { i18n } from '@kbn/i18n';
-import { EuiButton, EuiEmptyPrompt } from '@elastic/eui';
+import { FormattedMessage } from '@kbn/i18n-react';
+import { EuiButton, EuiEmptyPrompt, EuiText } from '@elastic/eui';
+import type { StreamFlyoutProps } from '.';
 
-export function ErrorPrompt({ onClose }: { onClose: () => void }) {
+export function ErrorPrompt({ name, onClose }: StreamFlyoutProps) {
   return (
     <EuiEmptyPrompt
       iconType="search"
@@ -20,11 +22,15 @@ export function ErrorPrompt({ onClose }: { onClose: () => void }) {
         </h2>
       }
       body={
-        <p>
-          {i18n.translate('xpack.streams.flyout.error.description', {
-            defaultMessage: 'A problem was encountered with the stream, and is unable to be shown.',
-          })}
-        </p>
+        <EuiText data-test-subj="streamNotFoundPromptBody">
+          <p>
+            <FormattedMessage
+              id="xpack.streams.flyout.error.body"
+              defaultMessage="We could not load stream {streamName}. It may have been deleted. Open the streams list to see your streams or create this stream again."
+              values={{ streamName: <strong>{name}</strong> }}
+            />
+          </p>
+        </EuiText>
       }
       actions={
         <EuiButton data-test-subj="streamNotFoundCloseButton" fill onClick={onClose}>

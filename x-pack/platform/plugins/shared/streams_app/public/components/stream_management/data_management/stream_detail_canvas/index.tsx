@@ -303,7 +303,7 @@ function ClassicStreamsCanvas() {
           })}
         />
       )}
-      {flyout && <StreamFlyout name={flyout + 'guh'} onClose={onCloseFlyout} />}
+      {flyout && <StreamFlyout name={flyout} onClose={onCloseFlyout} />}
       <EuiScreenReaderOnly>
         <p id={KEYBOARD_INSTRUCTIONS_ID}>
           {i18n.translate('xpack.streams.canvas.keyboardInstructions', {
