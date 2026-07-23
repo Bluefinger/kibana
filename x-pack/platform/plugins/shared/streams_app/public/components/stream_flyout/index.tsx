@@ -5,10 +5,11 @@
  * 2.0.
  */
 
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { css } from '@emotion/react';
 import { i18n } from '@kbn/i18n';
 import { Streams } from '@kbn/streams-schema';
+import { useAbortController } from '@kbn/react-hooks';
 import {
   EuiFlyout,
   EuiFlyoutHeader,
@@ -37,6 +38,7 @@ import { StreamRetention } from './stream_retention';
 import { ViewInDiscoverButton } from './discover_button';
 import { useTimeRange } from '../../hooks/use_time_range';
 import { StreamFlyoutOverview } from './stream_flyout_overview';
+import { StreamDeleteModal } from '../stream_delete_modal';
 
 const TABS = [
   {
@@ -78,7 +80,36 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
   const { rangeFrom, rangeTo } = useTimeRange();
   const { quality, isQualityLoading } = useDataSetQuality(name, definition);
   const [selectedTab, selectTab] = useState('overview');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const headerId = useGeneratedHtmlId();
+  const abortController = useAbortController();
+  const {
+    core: {
+      application: { navigateToApp },
+    },
+    dependencies: {
+      start: {
+        streams: { streamsRepositoryClient },
+      },
+    },
+  } = useKibana();
+
+  const canDeleteStream =
+    definition &&
+    Streams.ClassicStream.GetResponse.is(definition) &&
+    definition.privileges.manage &&
+    !definition.replicated;
+
+  const deleteStream = useCallback(async () => {
+    if (!Streams.ingest.all.GetResponse.is(definition)) {
+      return;
+    }
+    await streamsRepositoryClient.fetch('DELETE /api/streams/{name} 2023-10-31', {
+      params: { path: { name: definition.stream.name } },
+      signal: abortController.signal,
+    });
+    navigateToApp('/streams');
+  }, [definition, abortController.signal, navigateToApp, streamsRepositoryClient]);
 
   const renderTabs = useMemo(
     () =>
@@ -174,6 +205,19 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
               });
             },
           },
+          ...(canDeleteStream
+            ? [
+                {
+                  iconType: 'trash',
+                  'aria-label': i18n.translate('xpack.streams.flyout.tab.deleteStreamLink', {
+                    defaultMessage: 'Delete Stream',
+                  }),
+                  onClick: () => {
+                    setShowDeleteModal(true);
+                  },
+                },
+              ]
+            : []),
         ],
       }}
     >
@@ -229,6 +273,14 @@ function StreamFlyoutContent({ name, onClose }: StreamFlyoutProps) {
             page
           )}
         </div>
+        {showDeleteModal && Streams.ingest.all.GetResponse.is(definition) && (
+          <StreamDeleteModal
+            name={definition.stream.name}
+            onClose={() => setShowDeleteModal(false)}
+            onCancel={() => setShowDeleteModal(false)}
+            onDelete={deleteStream}
+          />
+        )}
       </EuiFlyoutBody>
     </EuiFlyout>
   );
